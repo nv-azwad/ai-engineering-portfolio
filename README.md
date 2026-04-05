@@ -1,35 +1,37 @@
-# RAG Pipeline — Property Management Q&A
+# RAG Pipeline — From Embeddings to PDF Q&A
 
-A Retrieval-Augmented Generation (RAG) pipeline built with LangChain and Ollama that answers property management questions based on a knowledge base of property rules.
-
-Built as a learning project to understand how RAG works from the ground up — starting from raw embeddings, to vector search, to a full question-answering pipeline.
+A progressive RAG (Retrieval-Augmented Generation) pipeline built with LangChain and Ollama — from understanding embeddings to querying real PDF documents with AI.
 
 ## How It Works
 
-![RAG Flow](https://img.shields.io/badge/RAG-Pipeline-blue)
-
-1. Documents are embedded into vectors using the `nomic-embed-text` model
+1. Documents (or PDF pages) are embedded into vectors using `nomic-embed-text`
 2. User question is embedded using the same model
-3. Cosine similarity finds the most relevant documents
-4. Top 3 matching chunks are injected into the LLM prompt as context
-5. `llama3.2` generates a grounded, accurate answer based only on the provided context
+3. Cosine similarity finds the most relevant chunks
+4. Top matching chunks are injected into the LLM prompt as context
+5. `llama3.2` generates a grounded answer based only on the retrieved context
 
 ## Project Structure
 
 ```
-rag-learning/
-├── 1-test-embeddings.js   # Step 1: Understand how text becomes vectors
-├── 2-test-search.js       # Step 2: Build semantic search from scratch
-├── 3-full-rag.js          # Step 3: Complete RAG pipeline with LLM
+├── 1-test-embeddings.js   # Understand how text becomes vectors
+├── 2-test-search.js       # Build semantic search from scratch
+├── 3-full-rag.js          # Full RAG pipeline with hardcoded knowledge base
+├── 4-pdf-rag.js           # RAG over real PDF documents
 ├── package.json
 └── README.md
 ```
 
-**`1-test-embeddings.js`** — Embeds sentences and compares their vector representations to show how semantically similar texts produce similar numbers.
+### Step 1 — Embeddings (`1-test-embeddings.js`)
+Embeds sentences and compares their vector representations. Shows how semantically similar texts produce similar numbers, while unrelated texts produce different ones.
 
-**`2-test-search.js`** — Implements cosine similarity search over a small knowledge base of property rules. Given a question, finds the most relevant document by meaning (not keywords).
+### Step 2 — Vector Search (`2-test-search.js`)
+Implements cosine similarity search over a small knowledge base. Given a question, finds the most relevant document by meaning — not keywords.
 
-**`3-full-rag.js`** — The full pipeline. Retrieves relevant context via vector search, injects it into a prompt, and uses `llama3.2` to generate a natural language answer. Includes hallucination prevention — the model only answers from the provided context.
+### Step 3 — Full RAG (`3-full-rag.js`)
+Complete RAG chatbot for a property management knowledge base. Retrieves context via vector search, injects it into a prompt, and generates natural language answers. Includes hallucination prevention — the model only answers from provided context.
+
+### Step 4 — PDF RAG (`4-pdf-rag.js`)
+The real deal. Loads any PDF, chunks it into overlapping segments, embeds all chunks, and answers questions about the document. Tested on a 68-page internship report — accurately extracted technologies, accomplishments, and project details.
 
 ## Tech Stack
 
@@ -37,11 +39,13 @@ rag-learning/
 - **Ollama** — Local LLM inference (no API keys needed)
 - **nomic-embed-text** — Embedding model for converting text to vectors
 - **llama3.2** — Language model for generating answers
+- **pdfjs-dist** — PDF text extraction
 - **Node.js / JavaScript** — Runtime
 
 ## Key Features
 
 - **Semantic search** — finds relevant documents by meaning, not keyword matching
+- **PDF ingestion** — reads and chunks real PDF documents with overlapping segments
 - **Hallucination prevention** — answers are grounded in retrieved context only
 - **Graceful fallback** — handles out-of-context queries ("I don't have that information")
 - **Fully local** — runs entirely on your machine, no API keys or cloud services required
@@ -56,20 +60,34 @@ npm install
 ollama pull nomic-embed-text
 ollama pull llama3.2
 
-# Run each step
+# Run each step progressively
 node 1-test-embeddings.js   # See how embeddings work
 node 2-test-search.js       # See semantic search in action
 node 3-full-rag.js          # Run the full RAG chatbot
+
+# Run PDF RAG (place your PDF as my-document.pdf)
+node 4-pdf-rag.js
 ```
 
 ## Example Output
 
+**Hardcoded knowledge base (Step 3):**
 ```
 👤 Resident: How can my friend visit me?
 🤖 Assistant: Your friend will need to register at the guardhouse and show
    a valid ID. You can also pre-register them using the CubeXHome mobile
    app up to 48 hours in advance.
+```
 
-👤 Resident: Is there a tennis court?
-🤖 Assistant: I don't have that information in the property rules.
+**PDF RAG (Step 4):**
+```
+👤 Question: What technologies and programming languages were used?
+🤖 Answer: Node.js with Express, Next.js with TypeScript, PostgreSQL,
+   JWT authentication, Tailwind CSS, Python, OpenCV, and neural networks.
+
+👤 Question: What did the developer achieve or accomplish?
+🤖 Answer: Developed a donation tracking system with reward system,
+   implemented backend-first methodology, designed database schema,
+   API architecture, and component hierarchy ensuring scalability,
+   security, and user experience.
 ```
