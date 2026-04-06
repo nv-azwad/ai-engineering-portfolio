@@ -1,6 +1,6 @@
-# AI Engineering Portfolio — RAG, Agents & Multi-Agent Systems
+# AI Engineering Portfolio — RAG, Agents, Multi-Agent Systems & Function Calling
 
-A progressive AI engineering portfolio built with LangChain and Ollama — from understanding embeddings to RAG pipelines, and from single-agent patterns to hierarchical multi-agent systems.
+A progressive AI engineering portfolio built with LangChain and Ollama — from understanding embeddings to RAG pipelines, multi-agent systems, and LLM function calling.
 
 ## How It Works
 
@@ -16,6 +16,12 @@ A progressive AI engineering portfolio built with LangChain and Ollama — from 
 2. Agents are chained in a sequential pipeline, each passing output to the next
 3. A manager agent can dynamically decide which agents to use based on the user's request
 
+**Function Calling (Step 7):**
+1. Available tools/functions are described in a schema and presented to the LLM
+2. The LLM decides which tool to call and what parameters to pass based on the user's request
+3. The chosen function is executed and its result is fed back to the LLM
+4. The LLM generates a natural, friendly response using the function result
+
 ## Project Structure
 
 ```
@@ -25,6 +31,7 @@ A progressive AI engineering portfolio built with LangChain and Ollama — from 
 ├── 4-pdf-rag.js           # RAG over real PDF documents
 ├── 5-multi-agent.js       # Sequential multi-agent content pipeline
 ├── 6-manager-agent.js     # Hierarchical multi-agent system with manager
+├── 7-function-calling.js  # LLM function calling with tool selection
 ├── package.json
 └── README.md
 ```
@@ -47,6 +54,9 @@ Three specialized agents — Researcher, Writer, and Reviewer — chained in a f
 ### Step 6 — Hierarchical Multi-Agent System (`6-manager-agent.js`)
 A Manager agent that dynamically decides which worker agents to use and in what order based on the user's request. Five available workers (Researcher, Writer, Reviewer, Translator, Summarizer) can be composed into different pipelines. The Manager parses each request, selects the appropriate agents, and orchestrates execution — different requests produce different agent chains automatically.
 
+### Step 7 — Function Calling (`7-function-calling.js`)
+Demonstrates LLM function calling — the AI receives a set of tool definitions (weather lookup, BMI calculator, property search, currency converter, general knowledge) and autonomously decides which tool to invoke based on the user's natural language request. The LLM selects the right function, extracts parameters, the function executes, and the result is fed back to the LLM for a final human-friendly response.
+
 ## Tech Stack
 
 - **LangChain** — AI orchestration framework
@@ -64,6 +74,7 @@ A Manager agent that dynamically decides which worker agents to use and in what 
 - **Graceful fallback** — handles out-of-context queries ("I don't have that information")
 - **Sequential agent pipeline** — chains multiple specialized agents for content generation
 - **Hierarchical agent orchestration** — manager agent dynamically selects and orders worker agents
+- **Function calling** — LLM autonomously selects and invokes the right tool for each request
 - **Fully local** — runs entirely on your machine, no API keys or cloud services required
 
 ## Setup
@@ -87,6 +98,7 @@ node 4-pdf-rag.js
 # Run multi-agent systems
 node 5-multi-agent.js      # Sequential pipeline
 node 6-manager-agent.js    # Hierarchical with manager
+node 7-function-calling.js # Function calling demo
 ```
 
 ## Example Output
@@ -130,4 +142,25 @@ USER REQUEST: "Research and write about JWT authentication in web applications"
 
 USER REQUEST: "Give me a quick bullet-point summary of Docker containerization"
 🧠 Manager decision → AGENTS: researcher, summarizer, writer
+```
+
+**Function Calling (Step 7):**
+```
+👤 User: What's the weather like in Dhaka right now?
+🧠 AI decided to call: getWeather
+📥 Parameters: { city: 'Dhaka' }
+⚙️  Function result: Weather in Dhaka: 32°C, Humid and partly cloudy, Humidity: 85%
+🤖 Final Answer: Warm day in Dhaka! Humidity is 85%, stay hydrated.
+
+👤 User: I weigh 70kg and I'm 175cm tall, what's my BMI?
+🧠 AI decided to call: calculateBMI
+📥 Parameters: { weight: '70', height: '175' }
+⚙️  Function result: BMI: 22.9 — Category: Normal weight
+🤖 Final Answer: Your BMI is 22.9, falling in the normal weight category.
+
+👤 User: How much is 500 USD in Bangladeshi Taka?
+🧠 AI decided to call: convertCurrency
+📥 Parameters: { amount: '500', from: 'USD', to: 'BDT' }
+⚙️  Function result: 500 USD = 55000.00 BDT
+🤖 Final Answer: 500 USD converts to approximately 55,000 Bangladeshi Taka.
 ```
